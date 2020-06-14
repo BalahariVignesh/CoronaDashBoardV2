@@ -194,7 +194,7 @@ app.get('/countyname',function(req,res)
         let Recovered=0;
         let Dead=0;
         let Total=0;
-        let date=" ";
+        let date=new Date();
         db.collection('Baden').find().toArray().then((county)=>{
             for(j=0;j<county.length;j++)
             {
@@ -442,7 +442,10 @@ app.get('/countyname',function(req,res)
 
 
                       city=docs[i].Landkreis;
-              
+                      date_string = docs[i].Datenstand;
+                      date_string = date_string.split(',');
+
+                      date.toISOString(date_string[0]);
                     }
                
                 Infected = infected_cases;
