@@ -46,7 +46,7 @@ mongoose
 //   var COVID = require('./models/covid')
 
 // redis connection
-// var client = redis.createClient();
+//  const r_client = redis.createClient();
 // client.on('connect', function() {
 //   console.log('Redis connected');
 // });
@@ -65,17 +65,28 @@ app.get('/', function(req,res) {
     res.send( 'Connected with the Node JS API for Corona Dashboard');
 });
 
+const client = redis.createClient({
+  host:'redis',
+  port:6379
+})
+app.get('/redis', function(req,res) {
+  client.hmset("hosts", "mjr", "1", "another", "23", "home", "1234");
+  client.hgetall("hosts", function (err, obj) {
+      console.dir(obj);
+  });
+  res.send("redis works");
+});
 //neo4j basic connection
-const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j','root')); //neo4j connection
+const driver = neo4j.driver('bolt://neo4j:7687', neo4j.auth.basic('neo4j','root')); //neo4j connection
 const session = driver.session();
 
 // neo4j route to query
 app.get('/neo4j', function(req, res){
       session
-      .run('MATCH (tom {name: "Tom Hanks"}) RETURN tom')
+      .run('MATCH (B:Bundesland) return B')
       .then(function(result){
         result.records.forEach(function(record){
-          console.log(record);
+          console.log(record._fields[0].properties);
         });
       })
       .catch(function(err){
@@ -83,6 +94,8 @@ app.get('/neo4j', function(req, res){
       })
       res.send("neo4j works");
     });
+
+
 
 //mongodb connection to fetch json from url and load into collection
 //fetching today's data from the RKI COVID API and insert into collection
