@@ -35,7 +35,7 @@ app.use(
 
 
 
-const mongoURI = 'mongodb://localhost:27017/COVID';
+const mongoURI = 'mongodb://mongodb:27017/COVID';
 
 
 
@@ -65,24 +65,24 @@ app.get('/', function(req,res) {
     res.send( 'Connected with the Node JS API for Corona Dashboard');
 });
 
-// //neo4j basic connection
-// const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j','rajath@123')); //neo4j connection
-// const session = driver.session();
+//neo4j basic connection
+const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j','root')); //neo4j connection
+const session = driver.session();
 
-// // neo4j route to query
-// app.get('/neo4j', function(req, res){
-//       session
-//       .run('MATCH (tom {name: "Tom Hanks"}) RETURN tom')
-//       .then(function(result){
-//         result.records.forEach(function(record){
-//           console.log(record);
-//         });
-//       })
-//       .catch(function(err){
-//         console.log(err);
-//       })
-//       res.send("neo4j works");
-//     });
+// neo4j route to query
+app.get('/neo4j', function(req, res){
+      session
+      .run('MATCH (tom {name: "Tom Hanks"}) RETURN tom')
+      .then(function(result){
+        result.records.forEach(function(record){
+          console.log(record);
+        });
+      })
+      .catch(function(err){
+        console.log(err);
+      })
+      res.send("neo4j works");
+    });
 
 //mongodb connection to fetch json from url and load into collection
 //fetching today's data from the RKI COVID API and insert into collection
@@ -442,10 +442,17 @@ app.get('/countyname',function(req,res)
 
 
                       city=docs[i].Landkreis;
-                      date_string = docs[i].Datenstand;
-                      date_string = date_string.split(',');
-
-                      date.toISOString(date_string[0]);
+                      date_string=docs[i].Datenstand;
+                      date_string=date_string.split(',');
+                      date_string = (date_string[0]).split(".").join("-")
+                      let actual_date = date_string.split("-");
+                      let dateD = actual_date[0];
+                      let month = actual_date[1];
+                      let year = actual_date[2];
+                      let date_format = year+"-"+ month + "-" + dateD;
+                      date =new Date(date_format);
+                    
+                      console.log(date);
                     }
                
                 Infected = infected_cases;
@@ -492,7 +499,7 @@ app.get('/countyname',function(req,res)
 
 app.get('/loaddata', function (req, res) {
  
-  const jsonString = fs.readFileSync('./dataset/04-06-2020.geojson')
+  const jsonString = fs.readFileSync('./dataset/comp_15-6.geojson')
   const history_data= JSON.parse(jsonString);
   //const data =  jsonString.features.map(patients => patients.properties);
   
